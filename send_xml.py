@@ -1,14 +1,15 @@
 import requests
 
 # === CONFIGURATION ===
-BOT_TOKEN = '8095298712:AAHYCpAQi-28XrcII7gf_yELnH0BroTcl2g'
-CHAT_ID = '-1001695498156'
+BOT_TOKEN = '8095298712:AAHYCpAQi-28XrcII7gf_yELnH0BroTcl2g'  # FrankFx Bot Token
+CHAT_ID = '-1001695498156'  # FRANKFX BOT channel (@unrulytech1)
 
 GITHUB_USER = 'Agbo130'
 REPO = 'frankfx-free-deriv-bot'
 MAX_XML_COUNT = 50
 
-GITHUB_BASE = f'https://raw.githubusercontent.com/{GITHUB_USER}/{REPO}/main/bots'
+# Base GitHub raw URL
+GITHUB_BASE = f'https://raw.githubusercontent.com/{GITHUB_USER}/{REPO}/main'
 
 def get_current_index():
     url = f'{GITHUB_BASE}/bot_index.txt'
@@ -18,7 +19,7 @@ def get_current_index():
     return int(res.text.strip())
 
 def generate_message(index):
-    file_url = f"{GITHUB_BASE}/free{index}.xml"
+    file_url = f"{GITHUB_BASE}/bots/free{index}.xml"
     return f"""
 🎁 <b>FREE DERIV BOT XML #{index}</b>
 
@@ -38,15 +39,19 @@ def send_to_telegram(message):
         'parse_mode': 'HTML'
     }
     res = requests.post(telegram_url, data=payload)
-    print('✅ Message sent:', res.status_code)
+    if res.status_code == 200:
+        print('✅ Message sent successfully.')
+    else:
+        print(f'❌ Telegram API error: {res.status_code}, {res.text}')
 
 def run():
     index = get_current_index()
     message = generate_message(index)
     send_to_telegram(message)
 
+    # Show what the next index should be
     next_index = 1 if index >= MAX_XML_COUNT else index + 1
-    print(f"📌 Manually update 'bot_index.txt' to: {next_index} in GitHub")
+    print(f"📌 Next time, update 'bot_index.txt' on GitHub to: {next_index}")
 
 if __name__ == '__main__':
     run()
